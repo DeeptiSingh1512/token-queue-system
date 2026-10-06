@@ -12,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/tokens")
 @RequiredArgsConstructor
@@ -28,9 +30,20 @@ public class TokenController {
                 .body(tokenService.book(authentication.getName(), request.serviceTypeId()));
     }
 
+    @GetMapping("/my")
+    public List<TokenResponse> myTokens(Authentication authentication) {
+        return tokenService.getMyTokens(authentication.getName());
+    }
+
     @GetMapping("/{id}/status")
     public TokenStatusResponse status(@PathVariable Long id,
                                       Authentication authentication) {
         return tokenService.getStatus(authentication.getName(), id);
+    }
+
+    @PostMapping("/{id}/cancel")
+    public TokenResponse cancel(@PathVariable Long id,
+                                Authentication authentication) {
+        return tokenService.cancel(authentication.getName(), id);
     }
 }

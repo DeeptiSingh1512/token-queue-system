@@ -75,12 +75,7 @@ public class TokenService {
 
     @Transactional(readOnly = true)
     public TokenStatusResponse getStatus(String citizenEmail, Long tokenId) {
-        // Another citizen's token looks the same as a missing one (404)
-        Token token = tokenRepository.findById(tokenId)
-                .filter(t -> t.getCitizen().getEmail().equals(citizenEmail))
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Token not found"));
-
+        Token token = findOwnedToken(citizenEmail, tokenId);
         ServiceType service = token.getServiceType();
 
         long ahead = 0;
@@ -112,5 +107,36 @@ public class TokenService {
                 position,
                 waitMinutes,
                 nowServing);
+    }
+
+    @Transactional
+    public TokenResponse cancel(String citizenEmail, Long tokenId) {
+        Token token = findOwnedToken(citizenEmail, tokenId);
+
+        if (token.getStatus() != TokenStatus.WAITING) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Only a waiting token can be cancelled");
+        }
+
+        token.setStatus(TokenStatus.CANCELLED);
+        return TokenResponse.from(tokenRepository.save(token));
+    }
+
+    @Transactional(readOnly = true)
+    public List<TokenResponse> getMyTokens(String citizenEmail) {
+        User citizen = userRepository.findByEmail(citizenEmail)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "User not found"));
+
+        return tokenRepository.findByCitizenIdOrderByCreatedAtDesc(citizen.getId())
+                .stream().map(TokenResponse::from).toList();
+    }
+
+    // Another citizen's token looks the same as a missing one (404)
+    private Token findOwnedToken(String citizenEmail, Long tokenId) {
+        return tokenRepository.findById(tokenId)
+                .filter(t -> t.getCitizen().getEmail().equals(citizenEmail))
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Token not found"));
     }
 }
