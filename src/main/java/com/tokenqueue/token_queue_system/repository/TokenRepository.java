@@ -19,6 +19,9 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     Optional<Token> findTopByServiceTypeIdAndTokenDateOrderBySequenceNumberDesc(
             Long serviceTypeId, LocalDate tokenDate);
 
+    long countByServiceTypeIdAndTokenDateAndStatus(
+            Long serviceTypeId, LocalDate tokenDate, TokenStatus status);
+
     long countByServiceTypeIdAndTokenDateAndStatusAndSequenceNumberLessThan(
             Long serviceTypeId, LocalDate tokenDate,
             TokenStatus status, int sequenceNumber);
