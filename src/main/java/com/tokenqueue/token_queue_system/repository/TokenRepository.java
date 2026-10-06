@@ -1,6 +1,8 @@
 package com.tokenqueue.token_queue_system.repository;
 
 import com.tokenqueue.token_queue_system.entity.Token;
+import com.tokenqueue.token_queue_system.dto.TokenStatusCount;
+import com.tokenqueue.token_queue_system.dto.TokenTiming;
 import com.tokenqueue.token_queue_system.enums.TokenStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +17,32 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TokenRepository extends JpaRepository<Token, Long> {
+
+    @Query("""
+            select new com.tokenqueue.token_queue_system.dto.TokenStatusCount(
+                s.id, t.status, count(t))
+            from Token t
+            join t.serviceType s
+            where s.office.id = :officeId
+              and t.tokenDate = :tokenDate
+            group by s.id, t.status
+            """)
+    List<TokenStatusCount> countByOfficeAndDateGroupedByServiceAndStatus(
+            @Param("officeId") Long officeId,
+            @Param("tokenDate") LocalDate tokenDate);
+
+    @Query("""
+            select new com.tokenqueue.token_queue_system.dto.TokenTiming(
+                t.createdAt, t.calledAt, t.completedAt, t.status)
+            from Token t
+            join t.serviceType s
+            where s.office.id = :officeId
+              and t.tokenDate = :tokenDate
+              and t.calledAt is not null
+            """)
+    List<TokenTiming> findTokenTimingsByOfficeAndDate(
+            @Param("officeId") Long officeId,
+            @Param("tokenDate") LocalDate tokenDate);
 
     Optional<Token> findTopByServiceTypeIdAndTokenDateOrderBySequenceNumberDesc(
             Long serviceTypeId, LocalDate tokenDate);
