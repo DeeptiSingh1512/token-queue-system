@@ -6,6 +6,7 @@ import com.tokenqueue.token_queue_system.dto.RegisterRequest;
 import com.tokenqueue.token_queue_system.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Auth")
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {

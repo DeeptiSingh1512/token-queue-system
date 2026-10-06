@@ -5,12 +5,14 @@ import com.tokenqueue.token_queue_system.dto.OfficeResponse;
 import com.tokenqueue.token_queue_system.dto.ServiceTypeResponse;
 import com.tokenqueue.token_queue_system.service.PublicBoardService;
 import com.tokenqueue.token_queue_system.service.PublicService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Tag(name = "Public")
 @RequestMapping("/api/public")
 @RequiredArgsConstructor
 public class PublicController {

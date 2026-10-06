@@ -7,6 +7,7 @@ import com.tokenqueue.token_queue_system.enums.TokenStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.domain.Pageable;
@@ -109,4 +110,37 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
 
     Optional<Token> findTopByCounterIdAndTokenDateAndStatusInOrderByCalledAtDesc(
             Long counterId, LocalDate tokenDate, Collection<TokenStatus> statuses);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update Token t
+            set t.status = com.tokenqueue.token_queue_system.enums.TokenStatus.SKIPPED,
+                t.completedAt = :now
+            where t.status = com.tokenqueue.token_queue_system.enums.TokenStatus.CALLED
+              and t.calledAt < :cutoff
+            """)
+    int skipCalledTokensBefore(@Param("cutoff") java.time.LocalDateTime cutoff,
+                               @Param("now") java.time.LocalDateTime now);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update Token t
+            set t.status = com.tokenqueue.token_queue_system.enums.TokenStatus.CANCELLED
+            where t.status = com.tokenqueue.token_queue_system.enums.TokenStatus.WAITING
+              and t.tokenDate < :today
+            """)
+    int cancelOldWaitingTokens(@Param("today") LocalDate today);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+            update Token t
+            set t.status = com.tokenqueue.token_queue_system.enums.TokenStatus.SKIPPED,
+                t.completedAt = :now
+            where t.status in (
+                com.tokenqueue.token_queue_system.enums.TokenStatus.CALLED,
+                com.tokenqueue.token_queue_system.enums.TokenStatus.IN_SERVICE)
+              and t.tokenDate < :today
+            """)
+    int skipOldCalledOrInServiceTokens(@Param("today") LocalDate today,
+                                       @Param("now") java.time.LocalDateTime now);
 }

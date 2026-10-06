@@ -5,6 +5,7 @@ import com.tokenqueue.token_queue_system.dto.ServiceTypeResponse;
 import com.tokenqueue.token_queue_system.service.ServiceTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@Tag(name = "Admin Services")
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminServiceTypeController {

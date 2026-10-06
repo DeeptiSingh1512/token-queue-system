@@ -5,6 +5,7 @@ import com.tokenqueue.token_queue_system.dto.TokenResponse;
 import com.tokenqueue.token_queue_system.dto.TokenStatusResponse;
 import com.tokenqueue.token_queue_system.service.TokenService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@Tag(name = "Citizen Tokens")
 @RequestMapping("/api/tokens")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('CITIZEN')")
