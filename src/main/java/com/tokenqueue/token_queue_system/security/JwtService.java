@@ -44,7 +44,7 @@ public class JwtService {
             parseClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            
+        
             return false;
         }
     }
